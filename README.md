@@ -1,31 +1,49 @@
-# The dynamic stylesheet language for the Rails asset pipeline.
+# The dynamic stylesheet language for the Rails asset pipeline, backported.
 
-This gem provides integration for Rails projects using the Less stylesheet language in the asset pipeline.
+This gem provides integration for Rails 2.3 projects using the Less stylesheet language in the Rails (Sprockets, really) asset pipeline.
 
+## Important backport note
 
+This backport is meant as to ease the transition for someone's application from 2.x to 3.x and up. The more work you do early, the less you have to do at once, and the easier the transition becomes. Being able to use the asset pipeline is one of those things, and being able to use Less right now is another. Sadly, less-rails 1.x requires the less 1.2 gem (which is old and in pure ruby), not less 2.x (which uses the shiny and much more featured less.js) Besides, this old less-rails does not integrate at all with Sprockets.
 
 ## Installing
 
-Just bundle up less-rails in your Gemfile. This will pull in less as a runtime dependency too.
+Once you have set up Sprockets to behave on Rails 2.3 (see RAILS_UP for how to uprate your app), just bundle up less-rails in your Gemfile. This will pull in less as a runtime dependency too. This gem shall not be published at rubygems under this name, so be sure to set up both git and the branch correctly.
 
-    gem 'less-rails'
+    gem 'less-rails', :git => https://github.com/lloeki/less-rails.git, :branch => 'rails-2.3-backport'
 
 
 
 ## Configuration
 
-This gem was made for other gems to properly hook into one place to provide paths to the Less::Parser. For example, the less-rails-bootstrap project at http://github.com/metaskills/less-rails-bootstrap and each project should do the path configuration for you. If you need to, you can configure less-rails with additional paths. These paths have higher priority than those from your applications assets load paths.
+You have to setup this gem so that Sprockets knows about Less, and where to look for files. This was the role of the Railtie. The following `config/initializers/sprockets_less.rb` will do the trick:
 
 ```ruby
-MyProject::Application.configure do
-  config.less.paths << "#{Rails.root}/lib/less/protractor/stylesheets"
-  config.less.compress = true
+require 'less'
+require 'less-rails'
+Sprockets::Engines #force autoloading
+Sprockets.register_engine '.less', Less::Rails::LessTemplate
+Sprockets.env.register_preprocessor 'text/css', Less::Rails::ImportProcessor
+
+module Less
+  module Sprockets
+    module LessContext
+      attr_accessor :less_config
+    end
+  end
 end
+
+less = ActiveSupport::OrderedOptions.new
+less.paths = []
+less.compress = false
+
+Sprockets.env.context_class.extend(Less::Sprockets::LessContext)
+Sprockets.env.context_class.less_config = less
 ```
 
 #### About Compression
 
-If `config.assets.compress` is set to true, we will set the `config.less.compress` to true as well. Less has real basic compression and it is recommended that you set the rails `config.assets.css_compressor` to something more stronger like `:yui` in your `config/environments/production.rb` file. Note, this requires the [yui-compressor](https://rubygems.org/gems/yui-compressor) gem but does an excellent job of compressing assets.
+Less has real basic compression and it is recommended that you set the rails `config.assets.css_compressor` to something more stronger like YUI.
 
 
 
@@ -88,29 +106,11 @@ Please note that these helpers are only available server-side, and something lik
 
 ## Generators
 
-Installation of the gem will set your applications stylesheet engine to use Less. It is possible to have many gems that set the stylesheet engine, for instance the sass-rails and/or stylus gems. In this case, you can resolve the ambiguity by setting the stylesheet engine in your `config/application.rb` file like so. Doing so would mean all generated assets will be in the a fresh `css.less` template.
-
-```ruby
-config.app_generators.stylesheet_engine :less
-```
-
-We have generators for both assets and scaffold in the `less` namespace. For instance the following would generate a blank `app/assets/stylesheets/posts.css.less` template.
-
-```
-$ rails generate less:assets posts
-```
-
-We also have a generator for rails scaffold CSS. Just like the Sass gem, we simply parse the scaffold.css in the default rails generator and save it as a scaffolds.css.less file. This is done automatically during other scaffold generator actions.
-
-
+Generators are dropped in this backport.
 
 ## Testing
 
-Simple! Just clone the repo, then run `bundle install` and `bundle exec rake`. The tests will begin to run. We also use Travis CI to run our tests too. Current build status is:
-
-[![Build Status](https://secure.travis-ci.org/metaskills/less-rails.png)](http://travis-ci.org/metaskills/less-rails)
-
-
+Testing is dropped in this backport.
 
 ## License
 

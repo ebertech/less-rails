@@ -16,9 +16,8 @@ module Less
   module Rails
     module Helpers
       
-      extend ActiveSupport::Concern
-      
-      included do
+      def self.included(base)
+        base.extend(ClassMethods)
         Less.register_rails_helper('asset-path')      { |tree, cxt| asset_path       unquote(cxt.toCSS()) }
         Less.register_rails_helper('asset-url')       { |tree, cxt| asset_url        unquote(cxt.toCSS()) }
         Less.register_rails_helper('image-path')      { |tree, cxt| image_path       unquote(cxt.toCSS()) }
@@ -98,7 +97,7 @@ module Less
         end
         
         def public_path(asset)
-          scope.asset_paths.compute_public_path asset, ::Rails.application.config.assets.prefix
+          scope.asset_paths.compute_public_path asset, '/assets'
         end
         
         def context_asset_data_uri(path)
