@@ -4,6 +4,8 @@ This gem provides integration for Rails 2.3 projects using the Less stylesheet l
 
 ## Important backport note
 
+This backport is completely unofficial (whatever official may mean in a DVCS world). You may consider using [sprockets-less](https://github.com/lloeki/sprockets-less) instead anyway.
+
 This backport is meant as to ease the transition for someone's application from 2.x to 3.x and up. The more work you do early, the less you have to do at once, and the easier the transition becomes. Being able to use the asset pipeline is one of those things, and being able to use Less right now is another. Sadly, less-rails 1.x requires the less 1.2 gem (which is old and in pure ruby), not less 2.x (which uses the shiny and much more featured less.js) Besides, this old less-rails does not integrate at all with Sprockets.
 
 ## Installing
