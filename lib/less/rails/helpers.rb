@@ -18,6 +18,7 @@ module Less
       
       def self.included(base)
         base.extend(ClassMethods)
+        base.instance_eval do 
         Less.register_rails_helper('asset-path')      { |tree, cxt| asset_path       unquote(cxt.toCSS()) }
         Less.register_rails_helper('asset-url')       { |tree, cxt| asset_url        unquote(cxt.toCSS()) }
         Less.register_rails_helper('image-path')      { |tree, cxt| image_path       unquote(cxt.toCSS()) }
@@ -33,6 +34,7 @@ module Less
         Less.register_rails_helper('font-path')       { |tree, cxt| asset_path       unquote(cxt.toCSS()) }
         Less.register_rails_helper('font-url')        { |tree, cxt| asset_url        unquote(cxt.toCSS()) }
         Less.register_rails_helper('asset-data-url')  { |tree, cxt| asset_data_url   unquote(cxt.toCSS()) }
+      end
       end
       
       module ClassMethods
@@ -97,7 +99,7 @@ module Less
         end
         
         def public_path(asset)
-          scope.asset_paths.compute_public_path asset, '/assets'
+          scope.send(:compute_public_path, asset, '/assets')
         end
         
         def context_asset_data_uri(path)
